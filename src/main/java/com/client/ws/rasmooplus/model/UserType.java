@@ -15,9 +15,8 @@ import java.io.Serializable;
 @Entity
 @Table(name = "user_type")
 public class UserType implements Serializable {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_type_id")
     private Long id;
 
