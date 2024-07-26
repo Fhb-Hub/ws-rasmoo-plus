@@ -1,6 +1,7 @@
 package com.client.ws.rasmooplus.service.impl;
 
 import com.client.ws.rasmooplus.dto.SubscriptionTypeDto;
+import com.client.ws.rasmooplus.exception.BadRequestException;
 import com.client.ws.rasmooplus.exception.NotFoundException;
 import com.client.ws.rasmooplus.model.SubscriptionType;
 import com.client.ws.rasmooplus.repositoy.SubscriptionTypeRepository;
@@ -32,9 +33,13 @@ public class SubscriptionTypeServiceImpl implements SubscriptionTypeService {
 
     @Override
     public SubscriptionType create(SubscriptionTypeDto dto) {
+        if (Objects.nonNull(dto.getId())) {
+            throw new BadRequestException("Id deve ser nulo");
+        }
+
         return subscriptionTypeRepository.save(SubscriptionType.builder()
                 .id(dto.getId())
-                .name(dto.getName() )
+                .name(dto.getName())
                 .accessMonth(dto.getAccessMonth())
                 .price(dto.getPrice())
                 .productKey(dto.getProductKey())
@@ -42,19 +47,20 @@ public class SubscriptionTypeServiceImpl implements SubscriptionTypeService {
     }
 
     @Override
-    public SubscriptionType update(Long id, SubscriptionType subscriptionType) {
-        if (findById(id) == null) {
-            return null;
-        }
-        return subscriptionTypeRepository.save(subscriptionType);
+    public SubscriptionType update(Long id, SubscriptionTypeDto dto) {
+        findById(id);
+        return subscriptionTypeRepository.save(SubscriptionType.builder()
+                .id(id)
+                .name(dto.getName())
+                .accessMonth(dto.getAccessMonth())
+                .price(dto.getPrice())
+                .productKey(dto.getProductKey())
+                .build());
     }
 
     @Override
     public void delete(Long id) {
-        SubscriptionType subscriptionType = findById(id);
-
-        if (Objects.nonNull(subscriptionType)) {
-            subscriptionTypeRepository.delete(subscriptionType);
-        }
+        findById(id);
+        subscriptionTypeRepository.deleteById(id);
     }
 }
