@@ -1,5 +1,7 @@
 package com.client.ws.rasmooplus.service.impl;
 
+import com.client.ws.rasmooplus.dto.SubscriptionTypeDto;
+import com.client.ws.rasmooplus.exception.NotFoundException;
 import com.client.ws.rasmooplus.model.SubscriptionType;
 import com.client.ws.rasmooplus.repositoy.SubscriptionTypeRepository;
 import com.client.ws.rasmooplus.service.SubscriptionTypeService;
@@ -24,18 +26,24 @@ public class SubscriptionTypeServiceImpl implements SubscriptionTypeService {
 
     @Override
     public SubscriptionType findById(Long id) {
-        Optional<SubscriptionType> optionalSubscriptionType  = subscriptionTypeRepository.findById(id);
-        return optionalSubscriptionType.orElse(null);
+        Optional<SubscriptionType> optionalSubscriptionType = subscriptionTypeRepository.findById(id);
+        return optionalSubscriptionType.orElseThrow(() -> new NotFoundException("SubscriptionType não encontrado"));
     }
 
     @Override
-    public SubscriptionType create(SubscriptionType subscriptionType) {
-        return subscriptionTypeRepository.save(subscriptionType);
+    public SubscriptionType create(SubscriptionTypeDto dto) {
+        return subscriptionTypeRepository.save(SubscriptionType.builder()
+                .id(dto.getId())
+                .name(dto.getName() )
+                .accessMonth(dto.getAccessMonth())
+                .price(dto.getPrice())
+                .productKey(dto.getProductKey())
+                .build());
     }
 
     @Override
     public SubscriptionType update(Long id, SubscriptionType subscriptionType) {
-        if(findById(id) == null) {
+        if (findById(id) == null) {
             return null;
         }
         return subscriptionTypeRepository.save(subscriptionType);
@@ -45,7 +53,7 @@ public class SubscriptionTypeServiceImpl implements SubscriptionTypeService {
     public void delete(Long id) {
         SubscriptionType subscriptionType = findById(id);
 
-        if(Objects.nonNull(subscriptionType)) {
+        if (Objects.nonNull(subscriptionType)) {
             subscriptionTypeRepository.delete(subscriptionType);
         }
     }
