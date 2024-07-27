@@ -5,25 +5,56 @@ import com.client.ws.rasmooplus.exception.BadRequestException;
 import com.client.ws.rasmooplus.exception.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ResourceHandler {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponseDto> notFoundException(NotFoundException exception) {
-        return buildErrorResponse(exception, HttpStatus.NOT_FOUND);
+        return buildErrorResponse(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponseDto> badRequestException(BadRequestException exception) {
-        return buildErrorResponse(exception, HttpStatus.BAD_REQUEST);
+        return buildErrorResponse(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    private ResponseEntity<ErrorResponseDto> buildErrorResponse(Exception exception, HttpStatus httpStatus) {
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponseDto> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException exception) {
+        Map<String, String> errorMessages = new HashMap<>();
+
+        exception.getBindingResult().getAllErrors().forEach(error -> {
+            String field = ((FieldError) error).getField();
+            String defaultMessage = error.getDefaultMessage();
+            errorMessages.put(field, defaultMessage);
+        });
+
+        String message = buildErrorMessage(errorMessages);
+
+        return buildErrorResponse(message, HttpStatus.BAD_REQUEST);
+    }
+
+    private String buildErrorMessage(Map<String, String> errorMessages) {
+        if (errorMessages == null || errorMessages.isEmpty()) return "{}";
+
+        return errorMessages.entrySet()
+                .stream()
+                .map(entry -> String.format("'%s': '%s'", entry.getKey(), entry.getValue()))
+                .collect(Collectors.joining(", ", "{ ", " }"));
+    }
+
+    private ResponseEntity<ErrorResponseDto> buildErrorResponse(String message, HttpStatus httpStatus) {
         ErrorResponseDto errorResponse = ErrorResponseDto.builder()
-                .message(exception.getMessage())
+                .message(message)
                 .httpStatus(httpStatus)
                 .statusCode(httpStatus.value())
                 .build();
