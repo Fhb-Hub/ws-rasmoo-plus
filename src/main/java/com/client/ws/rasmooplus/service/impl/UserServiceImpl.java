@@ -8,7 +8,9 @@ import com.client.ws.rasmooplus.model.UserType;
 import com.client.ws.rasmooplus.repositoy.UserRepository;
 import com.client.ws.rasmooplus.repositoy.UserTypeRepository;
 import com.client.ws.rasmooplus.service.UserService;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
