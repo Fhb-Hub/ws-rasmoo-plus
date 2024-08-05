@@ -6,4 +6,6 @@ import com.client.ws.rasmooplus.model.User;
 public interface UserService {
 
     User create(UserDto dto);
+
+    User findById(Long id);
 }
