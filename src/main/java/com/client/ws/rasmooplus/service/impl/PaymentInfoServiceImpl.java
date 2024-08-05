@@ -5,6 +5,7 @@ import com.client.ws.rasmooplus.dto.wsraspay.CustomerDto;
 import com.client.ws.rasmooplus.dto.wsraspay.OrderDto;
 import com.client.ws.rasmooplus.dto.wsraspay.PaymentDto;
 import com.client.ws.rasmooplus.exception.BusinessException;
+import com.client.ws.rasmooplus.integration.MailIntegration;
 import com.client.ws.rasmooplus.integration.WsRaspayIntegration;
 import com.client.ws.rasmooplus.mapper.UserPaymentInfoMapper;
 import com.client.ws.rasmooplus.mapper.wsraspay.CreditCardMapper;
@@ -23,12 +24,14 @@ public class PaymentInfoServiceImpl implements PaymentInfoService {
     private final UserService userService;
     private final WsRaspayIntegration wsRaspayIntegration;
     private final UserPaymentInfoRepository userPaymentInfoRepository;
+    private final MailIntegration mailintegration;
 
     public PaymentInfoServiceImpl(UserService userService, WsRaspayIntegration wsRaspayIntegration,
-            UserPaymentInfoRepository userPaymentInfoRepository) {
+            UserPaymentInfoRepository userPaymentInfoRepository, MailIntegration mailintegration) {
         this.userService = userService;
         this.wsRaspayIntegration = wsRaspayIntegration;
         this.userPaymentInfoRepository = userPaymentInfoRepository;
+        this.mailintegration = mailintegration;
     }
 
     @Override
@@ -49,9 +52,8 @@ public class PaymentInfoServiceImpl implements PaymentInfoService {
         if (processPaymentSuccess) {
             UserPaymentInfo userPaymentInfo = UserPaymentInfoMapper.fromDtoToEntity(dto.getUserPaymentInfoDto(), user);
             userPaymentInfoRepository.save(userPaymentInfo);
+            mailintegration.send(user.getEmail(), "Usuário: " + user.getEmail() + " - Senha: alunorasmoo", "Acesso liberado");
         }
-
-        // TODO: enviar email de criacao de conta
 
         return processPaymentSuccess;
     }
