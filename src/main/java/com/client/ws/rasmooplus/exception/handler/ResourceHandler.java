@@ -10,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.RestClientException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +47,11 @@ public class ResourceHandler {
         String message = buildErrorMessage(errorMessages);
 
         return buildErrorResponse(message, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RestClientException.class)
+    public ResponseEntity<ErrorResponseDto> restClientException(RestClientException exception) {
+        return buildErrorResponse(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     private String buildErrorMessage(Map<String, String> errorMessages) {
