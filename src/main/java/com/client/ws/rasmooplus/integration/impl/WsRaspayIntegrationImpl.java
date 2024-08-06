@@ -65,9 +65,9 @@ public class WsRaspayIntegrationImpl implements WsRaspayIntegration {
     }
 
     private HttpHeaders getHttpHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Basic cmFzbW9vcGx1czpyQHNtMDA=");
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return headers;
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Authorization", "Basic cmFzbW9vcGx1czpyQHNtMDA=");
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return httpHeaders;
     }
 }

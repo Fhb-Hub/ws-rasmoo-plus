@@ -10,6 +10,9 @@ import com.client.ws.rasmooplus.repositoy.UserTypeRepository;
 import com.client.ws.rasmooplus.service.UserService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -32,7 +35,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
+    public List<UserDto> findAll() {
+        return userRepository.findAll().stream().map(UserMapper::fromEntityToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public UserDto findById(Long id) {
+        return UserMapper.fromEntityToDto(userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado")));
     }
 }
